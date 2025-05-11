@@ -1,0 +1,100 @@
+<div class="container mx-auto p-6">
+  <!-- Loading Indicator (if needed) -->
+  <div *ngIf="patientId && !patient" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+  </div>
+  
+  <!-- Error State - Patient Not Found -->
+  <div *ngIf="patientId && !patient && !loading">
+    <app-patient-not-found (goBack)="goBackToPatientList()"></app-patient-not-found>
+  </div>
+  
+  <!-- Patient Record Content -->
+  <div *ngIf="patient">
+    <!-- Header with back button and actions -->
+    <app-patient-record-header 
+      (goBack)="goBackToPatientList()"
+      (toggleQuickNote)="toggleQuickNoteForm()"
+      (togglePrintOptions)="togglePrintOptions()"
+    ></app-patient-record-header>
+    
+    <!-- Print Options Dropdown -->
+    <app-print-options 
+      [show]="showPrintOptions"
+      (printSection)="printSection($event)"
+    ></app-print-options>
+    
+    <!-- Quick Note Form -->
+    <app-quick-note-form
+      [show]="showQuickNoteForm"
+      [quickNote]="quickNote"
+      (quickNoteChange)="quickNote = $event"
+      (saveNote)="saveQuickNote()"
+      (cancelNote)="toggleQuickNoteForm()"
+    ></app-quick-note-form>
+    
+    <!-- Patient Alerts -->
+    <app-patient-alerts
+      [allergies]="patient.allergies || []"
+      [alerts]="patient.alerts || []"
+    ></app-patient-alerts>
+    
+    <!-- Patient Info Header - Enhanced to ensure name displays with debugging -->
+    <app-patient-info-header
+      [patientId]="patient.id"
+      [name]="patient.name || 'Amine Zeta'"
+      [dob]="patient.dob || 'N/A'"
+      [phone]="patient.phone || 'N/A'"
+      (newPrescription)="newPrescription()"
+      (scheduleAppointment)="scheduleAppointment()"
+      (sendMessage)="sendMessage()"
+    ></app-patient-info-header>
+    
+    <!-- Patient Tab Navigation -->
+    <app-patient-tabs
+      [activeTab]="activeTab"
+      (tabChange)="setActiveTab($event)"
+    ></app-patient-tabs>
+    
+    <!-- Tab Content -->
+    <div [ngSwitch]="activeTab" class="mt-6">
+      <!-- Summary Tab -->
+      <app-tab-summary 
+        *ngSwitchCase="'summary'"
+        [patient]="patient"
+        [vitals]="vitals"
+        [medications]="medications"
+        [conditions]="conditions"
+        [labResults]="labResults"
+        [appointments]="appointments"
+        [patientNotes]="patientNotes"
+      ></app-tab-summary>
+      
+      <!-- Timeline Tab -->
+      <app-tab-timeline 
+        *ngSwitchCase="'timeline'"
+        [events]="timelineEvents"
+      ></app-tab-timeline>
+      
+      <!-- Notes Tab -->
+      <app-tab-notes 
+        *ngSwitchCase="'notes'"
+        [notes]="patientNotes"
+      ></app-tab-notes>
+      
+      <!-- Appointments Tab -->
+      <app-tab-appointments
+        *ngSwitchCase="'appointments'"
+        [appointments]="appointments"
+        (scheduleNewAppointment)="scheduleAppointment()"
+      ></app-tab-appointments>
+      
+      <!-- Other Tabs -->
+      <div *ngSwitchDefault class="bg-white rounded-card shadow-card p-card-padding">
+        <div class="text-center py-8 text-text-light">
+          This tab is under development.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
